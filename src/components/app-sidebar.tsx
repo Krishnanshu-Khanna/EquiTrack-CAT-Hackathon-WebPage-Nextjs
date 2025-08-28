@@ -15,7 +15,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { href: '/', icon: Home, label: 'Dashboard' },
+  { href: '/dashboard', icon: Home, label: 'Dashboard' },
   { href: '/inventory', icon: Package, label: 'Inventory' },
   { href: '/operators', icon: Users, label: 'Operators' },
   { href: '/forecasting', icon: BrainCircuit, label: 'Forecasting' },

@@ -34,7 +34,8 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { href: '/', icon: Home, label: 'Dashboard' },
+  { href: '/', icon: Home, label: 'Home' },
+  { href: '/dashboard', icon: Home, label: 'Dashboard' },
   { href: '/inventory', icon: Package, label: 'Inventory' },
   { href: '/operators', icon: Users, label: 'Operators' },
   { href: '/forecasting', icon: BrainCircuit, label: 'Forecasting' },
