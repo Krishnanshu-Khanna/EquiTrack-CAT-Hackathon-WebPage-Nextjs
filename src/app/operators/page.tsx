@@ -1,4 +1,7 @@
-import { PlusCircle, File, MoreHorizontal } from 'lucide-react';
+"use client"; // Required for hooks like useState and useEffect in Next.js App Router
+
+import { useState, useEffect } from 'react';
+import { PlusCircle, File, MoreHorizontal, MapPin } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,12 +27,61 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { getOperators, getEquipment } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useRouter } from 'next/navigation';
+import { count } from 'console';
+
+// A simple component to show while data is loading
+function LoadingSpinner() {
+    return (
+        <div className="flex justify-center items-center p-10">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+        </div>
+    );
+}
 
 export default function OperatorsPage() {
-  const operators = getOperators();
-  const equipment = getEquipment();
+  // State to store operators, loading status, and any errors
+  const [operators, setOperators] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  // useEffect hook to fetch data when the component mounts
+  useEffect(() => {
+    const fetchOperators = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('http://localhost:5000/api/operators');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        console.log('Fetched operators:', data);
+        setOperators(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOperators();
+  }, []); // Empty dependency array means this effect runs once on mount
+
+  // Helper to get initials from a name
+  const getNameInitials = (name) => {
+    if (!name) return '';
+    return name.split(' ').map(n => n[0]).join('');
+  };
+ // NEW: Handler function to navigate to the tracker page
+ const handleTrackClick = (operator) => {
+  console.log('Tracking operator:', operator);
+  // Check if the tracker position data exists before navigating
+  
+    // Navigate to the /tracker page and pass the coordinates as URL query parameters
+    router.push(`operators/tracker?name=${encodeURIComponent(operator._id)}`);
+  
+};
 
   return (
     <Card>
@@ -58,41 +110,37 @@ export default function OperatorsPage() {
         </div>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="hidden w-[100px] sm:table-cell">
-                <span className="sr-only">Avatar</span>
-              </TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="hidden md:table-cell">
-                Certification
-              </TableHead>
-              <TableHead className="hidden md:table-cell">
-                Assigned Equipment
-              </TableHead>
-               <TableHead className="hidden md:table-cell text-right">
-                Hours Worked
-              </TableHead>
-              <TableHead>
-                <span className="sr-only">Actions</span>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {operators.map((operator) => {
-              const assignedEquipment = operator.assignedEquipmentId
-                ? equipment.find((e) => e.id === operator.assignedEquipmentId)
-                : null;
-              const nameInitials = operator.name.split(' ').map(n => n[0]).join('');
-
-              return (
-                <TableRow key={operator.id}>
+        {loading ? (
+          <LoadingSpinner />
+        ) : error ? (
+          <div className="text-center text-red-500 py-10">
+            <p>Failed to load data: {error}</p>
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="hidden w-[100px] sm:table-cell">
+                  <span className="sr-only">Avatar</span>
+                </TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="hidden md:table-cell">Certification</TableHead>
+                <TableHead className="hidden md:table-cell">Assigned Equipment</TableHead>
+                <TableHead className="hidden md:table-cell text-right">Hours Worked</TableHead>
+                <TableHead>
+                  <span className="sr-only">Actions</span>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {operators.map((operator) => (
+                <TableRow key={operator._id}>
                   <TableCell className="hidden sm:table-cell">
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src={`https://i.pravatar.cc/40?u=${operator.id}`} alt={operator.name} />
-                      <AvatarFallback>{nameInitials}</AvatarFallback>
+                      {/* Using a placeholder image service */}
+                      <AvatarImage src={`https://i.pravatar.cc/40?u=${operator._id}`} alt={operator.name} />
+                      <AvatarFallback>{getNameInitials(operator.name)}</AvatarFallback>
                     </Avatar>
                   </TableCell>
                   <TableCell className="font-medium">{operator.name}</TableCell>
@@ -101,11 +149,10 @@ export default function OperatorsPage() {
                       {operator.status}
                     </Badge>
                   </TableCell>
+                  <TableCell className="hidden md:table-cell">{operator.certification}</TableCell>
                   <TableCell className="hidden md:table-cell">
-                    {operator.certification}
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    {assignedEquipment?.name || 'Unassigned'}
+                    {/* Accessing the populated equipment name is now simple */}
+                    {operator.assignedEquipment?.name || 'Unassigned'}
                   </TableCell>
                   <TableCell className="hidden md:table-cell text-right">
                     {operator.hoursWorked} hrs
@@ -113,11 +160,7 @@ export default function OperatorsPage() {
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button
-                          aria-haspopup="true"
-                          size="icon"
-                          variant="ghost"
-                        >
+                        <Button aria-haspopup="true" size="icon" variant="ghost">
                           <MoreHorizontal className="h-4 w-4" />
                           <span className="sr-only">Toggle menu</span>
                         </Button>
@@ -126,17 +169,22 @@ export default function OperatorsPage() {
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem>Edit</DropdownMenuItem>
                         <DropdownMenuItem>View Logs</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">
-                          Deactivate
-                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            onClick={() => handleTrackClick(operator)}
+                             // Button is disabled if no coordinates exist
+                          >
+                            <MapPin className="mr-2 h-4 w-4" />
+                            <span>Track Operator</span>
+                          </DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive">Deactivate</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
                 </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </CardContent>
       <CardFooter>
         <div className="text-xs text-muted-foreground">
