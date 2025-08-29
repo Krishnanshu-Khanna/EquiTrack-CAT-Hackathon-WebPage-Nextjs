@@ -9,7 +9,7 @@ interface Operator {
   _id: string;
   name: string;
   safeZone?: {
-    coordinates: Array<Array<{ x: number; y: number }>>;
+    coordinates: Array<Array<{ x: number; y: number }>> | Array<{ x: number; y: number }> ;
   };
 }
 
@@ -76,11 +76,11 @@ const [initialY, setInitialY] = useState(Math.floor(Math.random() * 100));
         if (!response.ok) throw new Error("Failed to fetch operator data.");
 
         const allOperators: Operator[] = await response.json();
-        const foundOperator = allOperators.find((op) => op._id === operatorName);
+        const foundOperator = allOperators.find((op) => op.operator._id === operatorName);
         
         if (!foundOperator) throw new Error(`Operator with ID "${operatorName}" not found.`);
 
-        setOperator(foundOperator);
+        setOperator(foundOperator.operator);
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -94,8 +94,24 @@ const [initialY, setInitialY] = useState(Math.floor(Math.random() * 100));
   // Transform operator data to points
   useEffect(() => {
     if (operator && operator.safeZone?.coordinates?.[0]) {
-      const polygonPoints = operator.safeZone.coordinates[0];
-      if (polygonPoints.length > 0) {
+    //   const polygonPoints = operator.safeZone.coordinates;
+        let polygonPoints ;
+      if (operator.safeZone.coordinates.length == 1 ) {
+        console.log("The data is in the form: Array<Array<{ x: number; y: number }>>");
+         polygonPoints = operator.safeZone.coordinates[0];
+        // This is a 2D array of points (e.g., a multi-polygon)
+        // You can now safely access elements like coordinates[0][0].x
+      
+      } else {
+        console.log("The data is in the form: Array<{ x: number; y: number }>");
+        polygonPoints = operator.safeZone.coordinates.map(coord => coord[0]);
+        // This is a 1D array of points (e.g., a simple line or polygon)
+        // You can now safely access elements like coordinates[0].x
+      }
+
+
+      if (Array.isArray(polygonPoints) && polygonPoints.length > 0
+    ) {
         setPoints(polygonPoints);
       } else {
         setPoints([]);
