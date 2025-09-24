@@ -69,13 +69,10 @@ The backend service is available here: 👉 [EquiTrack-CAT-Hackathon-Backend-Nod
 
 * [FastAPI](https://fastapi.tiangolo.com/)
 * [Uvicorn (standard)](https://www.uvicorn.org/)
-* [Pydantic](https://docs.pydantic.dev/)
 * [Pandas](https://pandas.pydata.org/)
 * [NumPy](https://numpy.org/)
 * [Scikit-learn](https://scikit-learn.org/)
 * [TensorFlow](https://www.tensorflow.org/)
-* [Joblib](https://joblib.readthedocs.io/)
-* [python-dotenv](https://pypi.org/project/python-dotenv/)
 
 ### ☁️ AWS Integration
 
