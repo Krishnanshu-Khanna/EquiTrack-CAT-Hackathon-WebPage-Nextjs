@@ -39,17 +39,17 @@ var lolz = true
   const [simulationInterval, setSimulationInterval] = useState<NodeJS.Timeout | null>(null);
   const searchParams = useSearchParams();
   const operatorName = searchParams.get("name");
-const [initialX, setInitialX] = useState(Math.floor(Math.random() * 100));
-const [initialY, setInitialY] = useState(Math.floor(Math.random() * 100));
+const [initialX, setInitialX] = useState(50);
+const [initialY, setInitialY] = useState(50);
   // Predefined simulation path - scaled to fit our coordinate system
 //   const intX = Math.floor(Math.random() * 100)
 //   const intY = Math.floor(Math.random() * 100)
   const simulationPath = [
-    {x:initialX,y:initialY},    // Start outside
+    {x:50,y:50},    // Start outside
     { x: 100, y: 80 },   // Move towards safe zone
     { x: 150, y: 110 },  // Enter safe zone
     { x: 200, y: 140 },  // Inside safe zone
-    { x: 250, y: 170 },  // Still inside
+    { x: 220, y: 145 },  // Still inside
     { x: 300, y: 200 },  // Moving towards edge
     { x: 400, y: 250 },  // Exit safe zone
     { x: 500, y: 300 },  // Outside safe zone

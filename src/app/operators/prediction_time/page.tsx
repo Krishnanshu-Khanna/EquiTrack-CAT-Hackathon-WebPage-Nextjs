@@ -326,7 +326,7 @@ export default function PredictionTimePage(): JSX.Element {
                 <span className="text-gray-600">Promised Timeline:</span>
                 <span className="font-medium text-gray-900 flex items-center">
                   <Timer className="h-4 w-4 mr-1" />
-                  {operator.PromisedTime} weeks
+                  {operator.PromisedTime} Months
                 </span>
               </div>
               <div className="pt-2">
